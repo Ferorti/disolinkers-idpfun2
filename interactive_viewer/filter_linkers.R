@@ -4,20 +4,7 @@ library(dplyr)
 library(DT)
 library(NGLVieweR)
 
-# # 1) carga tus datos
-# df <- read.delim(
-#   "../swiss_prot/data/linkers_cider_features.tsv",
-#   sep             = "\t",
-#   header          = TRUE,
-#   stringsAsFactors = FALSE
-# ) %>%
-#     mutate(across(where(is.character), ~ gsub("[<>]", "x", .)))%>%
-#     mutate(arch_length = nchar(lite_cat_20)) %>%
-#   arrange(
-#     arch_length,
-#     desc(afd_dc),
-#     desc(lite_dc)
-#   )
+
 
 df <- read.delim(
   "../data/ted_clean/regions_with_parch_fnote.tsv",
@@ -76,7 +63,7 @@ ui <- fluidPage(
       sliderInput("length", "Min Length",
                   min = floor(min(df$length, na.rm=TRUE)),
                   max = 300,
-                  value = floor(min(df$length, na.rm=TRUE)),
+                  value = c(floor(min(df$length, na.rm=TRUE)), max(df$length, na.rm=TRUE)),
                   step = 1)
     ),
     column(2, downloadButton("download_csv", "Download"))
@@ -139,7 +126,8 @@ base_data <- reactive({
       # tus otros filtros
       lite_dc >= input$lite_dc[1],
       lite_dc <= input$lite_dc[2],
-      length  >= input$length,
+      length  >= input$length[1],
+      length  <= input$length[2],
       # 2) nuevo filtro de arquitectura múltiple
       (
         # sin patrón ingresado → todo pasa
